@@ -14,7 +14,7 @@
 				inherit (builtins.parseDrvName packages.${system}.default.name) name;
 				contents = [ packages.${system}.default ];
 				config = {
-					Cmd = [ "/bin/${packages.${system}.docker.name}" ];
+					Cmd = [ "/bin/${packages.${system}.container.name}" ];
 				};
 			};
         }) inputs.nixpkgs.legacyPackages;
