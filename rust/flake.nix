@@ -7,15 +7,20 @@
 		};
     };
 
-    outputs = inputs: rec {
+    outputs = inputs: {
         packages = builtins.mapAttrs (system: pkgs: {
-			default = inputs.naersk.lib.${system}.buildPackage ./.;
-			container = pkgs.dockerTools.buildLayeredImage {
-				inherit (builtins.parseDrvName packages.${system}.default.name) name;
-				contents = [ packages.${system}.default ];
-				config = {
-					Cmd = [ "/bin/${packages.${system}.container.name}" ];
-				};
+            default = inputs.naersk.lib.${system}.buildPackage {
+				src = ./.;
+				doCheck = true;
+			};
+
+			container = let
+				default = inputs.self.packages.${system}.default;
+				inherit (builtins.parseDrvName default.name) name;
+			in pkgs.dockerTools.buildLayeredImage {
+				inherit name;
+				contents = [ default ];
+				config.Cmd = [ "/bin/${name}" ];
 			};
         }) inputs.nixpkgs.legacyPackages;
 
